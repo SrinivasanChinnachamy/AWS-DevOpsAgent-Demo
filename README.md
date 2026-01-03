@@ -1,6 +1,6 @@
 # AWS DevOps Agent Demo
 
-This repository demonstrates AWS DevOps Agent capabilities by deploying infrastructure with **intentional issues** for investigation and resolution.
+This repository demonstrates AWS DevOps Agent capabilities by deploying infrastructure with **intentional issues** for investigation and resolution. Kindly interpret as outlined in this medium bog. (link)
 
 ## 🎯 Purpose
 
