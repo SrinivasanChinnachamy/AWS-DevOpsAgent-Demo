@@ -1,0 +1,132 @@
+name: Deploy User API with Terraform
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  AWS_REGION: us-east-1
+  TF_VERSION: 1.6.0
+
+jobs:
+  # ISSUE: No security scanning
+  # ISSUE: No dependency vulnerability check
+  
+  terraform-plan:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Terraform Init
+        working-directory: infrastructure
+        run: terraform init
+
+      - name: Terraform Validate
+        working-directory: infrastructure
+        run: terraform validate
+
+      - name: Terraform Plan
+        working-directory: infrastructure
+        run: terraform plan -var-file="terraform.tfvars"
+        # ISSUE: No plan review process
+        # ISSUE: No cost estimation
+
+  terraform-apply:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Package Lambda function
+        run: |
+          # Create deployment package
+          zip -j lambda_deployment.zip src/get_user.py
+          mv lambda_deployment.zip infrastructure/
+          # ISSUE: No dependency installation
+          # ISSUE: No package optimization
+
+      - name: Terraform Init
+        working-directory: infrastructure
+        run: terraform init
+
+      - name: Terraform Apply
+        working-directory: infrastructure
+        run: terraform apply -auto-approve -var-file="terraform.tfvars"
+        # ISSUE: Auto-approve without review
+        # ISSUE: No rollback mechanism
+
+      - name: Update Lambda function code
+        run: |
+          # Get function name from Terraform output
+          FUNCTION_NAME=$(cd infrastructure && terraform output -raw function_name)
+          
+          # Update function code
+          aws lambda update-function-code \
+            --function-name $FUNCTION_NAME \
+            --zip-file fileb://infrastructure/lambda_deployment.zip
+          # ISSUE: No deployment validation
+
+      - name: Add sample data
+        run: |
+          # Get table name from Terraform output
+          TABLE_NAME=$(cd infrastructure && terraform output -raw table_name)
+          
+          # Add sample users
+          aws dynamodb put-item \
+            --table-name $TABLE_NAME \
+            --item '{"userId":{"S":"user123"},"name":{"S":"John Doe"},"email":{"S":"john@example.com"}}'
+          
+          aws dynamodb put-item \
+            --table-name $TABLE_NAME \
+            --item '{"userId":{"S":"user456"},"name":{"S":"Jane Smith"},"email":{"S":"jane@example.com"}}'
+
+      - name: Output API endpoint
+        run: |
+          API_ENDPOINT=$(cd infrastructure && terraform output -raw api_endpoint)
+          echo "🌐 API Endpoint: $API_ENDPOINT"
+          echo "🧪 Test: curl $API_ENDPOINT/users/user123"
+          # ISSUE: No automated testing of deployed API
+          # ISSUE: No health checks
+          # ISSUE: No performance validation
+
+  # MISSING JOBS:
+  # - Security scanning (tfsec, checkov)
+  # - Load testing
+  # - Integration testing
+  # - Rollback capability
