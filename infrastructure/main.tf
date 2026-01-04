@@ -102,7 +102,7 @@ resource "aws_iam_role_policy_attachment" "lambda_basic_execution" {
 # CloudWatch Log Group for Lambda Function
 resource "aws_cloudwatch_log_group" "lambda_log_group" {
   name              = "/aws/lambda/${var.environment}-get-user-function"
-  retention_in_days = 14  # ISSUE: Short retention for production
+  retention_in_days = 60  # ISSUE: Short retention for production
 
   tags = {
     Environment = var.environment
