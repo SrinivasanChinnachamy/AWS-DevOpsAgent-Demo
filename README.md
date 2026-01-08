@@ -1,6 +1,9 @@
 # AWS DevOps Agent Demo
 
-This repository demonstrates AWS DevOps Agent capabilities by deploying infrastructure with **intentional issues** for investigation and resolution. Kindly interpret as outlined in this medium bog. (link) we will also use this repo to perform code review with AWS Security Agent to review code security findings (AWS and Custom) in GitHub
+This repository demonstrates AWS DevOps Agent capabilities by deploying infrastructure with **intentional issues** for investigation and resolution. 
+Kindly interpret as outlined in this medium bog.
+**From Reactive Firefighting to Intelligent Triage: The Rise of AWS DevOps Frontier Agent**
+(https://medium.com/aws-tip/from-reactive-firefighting-to-intelligent-triage-the-rise-of-aws-devops-frontier-agent-9055dc0248d7
 
 ## 🎯 Purpose
 
